@@ -10,10 +10,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
 
 // ---- Firebase Admin (modular API v14) ----
 export function initFirebase(): void {
-  // serviceAccountKey.json nằm ở root project (đã gitignore — secret thật)
-  const serviceAccount = JSON.parse(
-    readFileSync(resolve(process.cwd(), 'serviceAccountKey.json'), 'utf-8'),
-  );
+  // Render/production: đọc service account từ env var FIREBASE_SERVICE_ACCOUNT (JSON string).
+  // Local dev: fallback đọc file serviceAccountKey.json (đã gitignore — secret thật).
+  const fromEnv = process.env.FIREBASE_SERVICE_ACCOUNT;
+  const serviceAccount = fromEnv
+    ? JSON.parse(fromEnv)
+    : JSON.parse(
+        readFileSync(resolve(process.cwd(), 'serviceAccountKey.json'), 'utf-8'),
+      );
   initializeApp({ credential: cert(serviceAccount) });
 }
 
